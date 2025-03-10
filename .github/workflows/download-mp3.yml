@@ -1,0 +1,42 @@
+name: Download MP3 with Date
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'https://www.turnerinvestments.ca/-/media/rj/rjl-advisor-sites/sites/t/u/turnerinvestments/files/audio/weekly-call.mp3'
+        required: true
+        type: string
+
+jobs:
+  download-mp3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v2
+
+      - name: Set up curl
+        run: sudo apt-get install -y curl
+
+      - name: Fetch MP3 file creation date and download
+        run: |
+          # Fetch the Last-Modified header
+          creation_date=$(curl -I "$${{ github.event.inputs.url }}" | grep -i 'Last-Modified' | sed 's/Last-Modified: //I')
+
+          # Check if the date is found
+          if [ -z "$$creation_date" ]; then
+            echo "Creation date not found in the response headers."
+            exit 1
+          fi
+
+          # Format the date into a usable format
+          formatted_date=$(date -d "$$creation_date" +"%Y-%m-%d_%H-%M-%S")
+
+          # Download and save the file with the formatted date in the filename
+          curl -o "mp3_$$formatted_date.mp3" "$${{ github.event.inputs.url }}"
+
+      - name: Upload downloaded MP3 file
+        uses: actions/upload-artifact@v3
+        with:
+          name: mp3_file
+          path: mp3_*.mp3
