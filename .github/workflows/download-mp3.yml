@@ -5,6 +5,7 @@ on:
     inputs:
       url:
         description: 'https://www.turnerinvestments.ca/-/media/rj/rjl-advisor-sites/sites/t/u/turnerinvestments/files/audio/weekly-call.mp3'
+        default: 'https://www.turnerinvestments.ca/-/media/rj/rjl-advisor-sites/sites/t/u/turnerinvestments/files/audio/weekly-call.mp3'
         required: true
         type: string
 
@@ -36,7 +37,7 @@ jobs:
           curl -o "mp3_$$formatted_date.mp3" "$${{ github.event.inputs.url }}"
 
       - name: Upload downloaded MP3 file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mp3_file
           path: mp3_*.mp3
